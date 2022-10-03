@@ -6,6 +6,19 @@
   - firstname: ["Lieven", "L."]
     url: http://www.seas.ucla.edu/~vandenbe/
 
+"Frossard":
+  - firstname: ["Pascal", "P."]
+    url: https://www.epfl.ch/labs/lts4/people/people-current/frossard/
+
+"Richard":
+  - firstname: ["Cédric", "Cedric", "C."]
+    url: http://www.cedric-richard.fr
+
+"Marković":
+  - firstname: ["Dejan", "D."]
+    url: https://samueli.ucla.edu/people/dejan-markovic/
+
+
 "Nassif":
   - firstname: ["Roula", "R."]
     url: https://roulanassif.github.io
