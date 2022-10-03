@@ -1,6 +1,6 @@
-"AJP":
-  url: https://aapt.scitation.org/journal/ajp
-  color: "#00369f"
+"IEEE ICASSP":
+  color: "#00629B"
 
-"PhysRev":
-  url: https://journals.aps.org/
+"IEEE TSP":
+  url: https://signalprocessingsociety.org/publications-resources/ieee-transactions-signal-processing
+  color: "#00629B"
