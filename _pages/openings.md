@@ -17,7 +17,7 @@ I work with a number of Imperial students each year for their thesis projects. S
 
 PhD students
 -----
-**I currently have an opening for one fully funded international PhD studentship. Details in the [advert](https://stefanvlaski.github.io/assets/pdf/imperial_studentship.pdf).** Additionally, Imperial offers a number of prestigious scholarships each year including [college-wide](https://www.imperial.ac.uk/study/fees-and-funding/postgraduate-doctoral/) and [departmental](https://www.imperial.ac.uk/electrical-engineering/study/phd/funding-and-scholarships/) schemes. If you would like to work with me while pursuing a PhD at Imperial, you will need to apply through the [central system](https://www.imperial.ac.uk/electrical-engineering/study/phd/) and list my name as potential supervisor. If you would like to discuss research and potential projects prior to applying, please send me an email and make sure to include a CV as well as a couple of paragraphs on topics you would be interested in exploring.
+Imperial offers a number of prestigious scholarships each year including [college-wide](https://www.imperial.ac.uk/study/fees-and-funding/postgraduate-doctoral/) and [departmental](https://www.imperial.ac.uk/electrical-engineering/study/phd/funding-and-scholarships/) schemes. If you would like to work with me while pursuing a PhD at Imperial, you will need to apply through the [central system](https://www.imperial.ac.uk/electrical-engineering/study/phd/) and list my name as potential supervisor. If you would like to discuss research and potential projects prior to applying, please send me an email and make sure to include a CV as well as a couple of paragraphs on topics you would be interested in exploring.
 
 
 
