@@ -2,7 +2,7 @@
 layout: about
 title: home
 permalink: /
-subtitle: <a href=https://www.imperial.ac.uk/people/s.vlaski>Lecturer, Imperial College London</a>
+subtitle: <a href=https://profiles.imperial.ac.uk/s.vlaski>Lecturer, Imperial College London</a>
 
 profile:
   align: right
