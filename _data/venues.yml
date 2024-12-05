@@ -7,6 +7,9 @@
 "DSLW":
   color: "#02893B"
 
+"DSP":
+  color: "#02893B"
+
 "SAM":
   color: "#02893B"
 
@@ -44,6 +47,12 @@
   color: "#00629B"
 
 "TSP":
+  color: "#00629B"
+
+"TSPIN":
+  color: "#00629B"
+
+"EURASIP":
   color: "#00629B"
 
 "TAC":
