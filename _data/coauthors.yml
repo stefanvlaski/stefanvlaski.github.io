@@ -1,34 +1,60 @@
-"adams":
-  - firstname: ["Edwin", "E.", "E. P.", "Edwin Plimpton"]
-    url: https://en.wikipedia.org/wiki/Edwin_Plimpton_Adams
+"Kayaalp":
+  - firstname: ["Mert", "M."]
+    url: https://scholar.google.com/citations?user=lT8OOuwAAAAJ&hl=en&oi=ao
 
-"podolsky":
-  - firstname: ["Boris", "B.", "B. Y.", "Boris Yakovlevich"]
-    url: https://en.wikipedia.org/wiki/Boris_Podolsky
+"Matta":
+  - firstname: ["Vincenzo", "V."]
+    url: https://docenti.unisa.it/005199/en/curriculum
 
-"rosen":
-  - firstname: ["Nathan", "N."]
-    url: https://en.wikipedia.org/wiki/Nathan_Rosen
+"Matta":
+  - firstname: ["Vincenzo", "V."]
+    url: https://docenti.unisa.it/005199/en/curriculum
 
-"bach":
-  - firstname: ["Johann Sebastian", "J. S."]
-    url: https://en.wikipedia.org/wiki/Johann_Sebastian_Bach
+"Kar":
+  - firstname: ["Soummya", "S."]
+    url: https://users.ece.cmu.edu/~soummyak/
 
-  - firstname: ["Carl Philipp Emanuel", "C. P. E."]
-    url: https://en.wikipedia.org/wiki/Carl_Philipp_Emanuel_Bach
+"Moura":
+  - firstname: ["Jose", "J.", "José", "José M. F.", "J. M. F."]
+    url: https://josemoura.org
 
-"przibram":
-  - firstname: ["Karl"]
-    url: https://link.springer.com/article/10.1007/s00016-019-00242-z
+"Chen":
+  - firstname: ["Jie"]
+    url: https://www.jie-chen.com
 
-"schrodinger":
-  - firstname: ["Erwin"]
-    url: https://en.wikipedia.org/wiki/Erwin_Schr%C3%B6dinger
+"Bordignon":
+  - firstname: ["Virginia", "V."]
+    url: https://scholar.google.com/citations?user=Zn9SvdsAAAAJ&hl=pt-BR
 
-"lorentz":
-  - firstname: ["Hendrik Antoon"]
-    url: https://en.wikipedia.org/wiki/Hendrik_Lorentz
+"Sayed":
+  - firstname: ["Ali", "Ali H.", "A. H.", "A."]
+    url: https://asl.epfl.ch
 
-"planck":
-  - firstname: ["Max"]
-    url: https://en.wikipedia.org/wiki/Max_Planck
+"Vandenberghe":
+  - firstname: ["Lieven", "L."]
+    url: http://www.seas.ucla.edu/~vandenbe/
+
+"Frossard":
+  - firstname: ["Pascal", "P."]
+    url: https://www.epfl.ch/labs/lts4/people/people-current/frossard/
+
+"Richard":
+  - firstname: ["Cédric", "Cedric", "C."]
+    url: http://www.cedric-richard.fr
+
+"Marković":
+  - firstname: ["Dejan", "D."]
+    url: https://samueli.ucla.edu/people/dejan-markovic/
+
+
+"Nassif":
+  - firstname: ["Roula", "R."]
+    url: https://roulanassif.github.io
+
+"Zoubir":
+  - firstname: ["Abdelhak M.", "A. M.", "Abdelhak"]
+    url: https://www.spg.tu-darmstadt.de/spg/index.en.jsp
+
+"Muma":
+  - firstname: ["Michael", "M."]
+    url: https://robustdatascience.org
