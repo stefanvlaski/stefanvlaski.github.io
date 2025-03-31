@@ -3,7 +3,7 @@ layout: page
 permalink: /openings/
 title: openings
 nav: true
-nav_order: 4
+nav_order: 5
 ---
 
 If you are interested in working with me, please take some time to browse through our group's publications. The best way forward will then depend on the position you are aiming for:
