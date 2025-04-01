@@ -1,0 +1,3 @@
+Our group consists of a mix of PhD students, Research Assistants and Associates as well as visiting students, working in the area of optimization and machine learning, graph and network science, and the statistical foundations of learning. Broadly speaking, the group skews theoretical, but some members are working on translation to applications in communications and signal processing.
+
+We are based in the Electrical and Electronic Engineering Building at Imperial's South Kensington campus.
