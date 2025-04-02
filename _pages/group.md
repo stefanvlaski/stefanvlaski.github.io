@@ -16,7 +16,7 @@ profiles:
 
 profiles:
   - align: left
-  - content: current members
+  - content: about_current.md
 
 profiles:
   # if you want to include more than one profile, just replicate the following block
@@ -44,7 +44,7 @@ profiles:
 
 profiles:
   - align: left
-  - content: former members
+  - content: about_former.md
 
 profiles:
   # if you want to include more than one profile, just replicate the following block
