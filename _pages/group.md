@@ -38,7 +38,7 @@ profiles:
     content: about_muyun.md
     image_circular: false # crops the image to make it circular
   - align: left
-    image: spark.jpg
+    image: spark.png
     content: about_sangwoo.md
     image_circular: false # crops the image to make it circular
 ---
