@@ -1,7 +1,7 @@
 \
 **Sangwoo Park**\
 Post-Doctoral Research Associate (2024-2025)\
-Next position: Research Fellow at King's College London
+Next position: Research Fellow at King's College London\
 \
 Research topics: Multi-objective optimization, distributed optimization, statistical machine learning\
 \
