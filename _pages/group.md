@@ -15,6 +15,10 @@ profiles:
     image_circular: false # crops the image to make it circular
   - align: left
     image: zirui.tiff
+    content: about_zirui.md
+    image_circular: false # crops the image to make it circular
+  - align: left
+    image: aaron.jpg
     content: about_aaron.md
     image_circular: false # crops the image to make it circular
   - align: left
