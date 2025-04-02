@@ -13,6 +13,14 @@ profiles:
     image: group_2025.jpg
     content: about_group.md
     image_circular: false # crops the image to make it circular
+
+profiles:
+  - align: left
+  - content: current members
+
+profiles:
+  # if you want to include more than one profile, just replicate the following block
+  # and create one content file for each profile inside _pages/
   - align: left
     image: zirui.tiff
     content: about_zirui.md
@@ -33,8 +41,16 @@ profiles:
     image: dongyan.jpg
     content: about_dongyan.md
     image_circular: false # crops the image to make it circular
+
+profiles:
   - align: left
-    image: muyun.jpg
+  - content: former members
+
+profiles:
+  # if you want to include more than one profile, just replicate the following block
+  # and create one content file for each profile inside _pages/
+  - align: left
+    image: muyun.jpeg
     content: about_muyun.md
     image_circular: false # crops the image to make it circular
   - align: left
