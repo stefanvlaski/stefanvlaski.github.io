@@ -4,7 +4,7 @@ permalink: /group/
 title: group
 description: research group
 nav: true
-nav_order: 4
+nav_order: 3
 
 profiles:
   # if you want to include more than one profile, just replicate the following block

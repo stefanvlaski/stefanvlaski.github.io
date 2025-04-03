@@ -4,7 +4,7 @@ permalink: /publications/
 title: publications
 description: 
 nav: true
-nav_order: 3
+nav_order: 4
 ---
 A list of publications in journals and conference proceedings, by year of publication for published articles, and year of submission for preprints. A list of works is also available on [Google Scholar](https://scholar.google.com/citations?user=mghzVekAAAAJ&hl=en).
 
