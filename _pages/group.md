@@ -14,7 +14,7 @@ profiles:
     content: about_group.md
     image_circular: false # crops the image to make it circular
   - align: left
-  - content: about_current.md
+    content: about_current.md
   - align: left
     image: zirui.tiff
     content: about_zirui.md
@@ -36,7 +36,7 @@ profiles:
     content: about_dongyan.md
     image_circular: false # crops the image to make it circular
   - align: left
-  - content: about_former.md
+    content: about_former.md
   - align: left
     image: muyun.jpeg
     content: about_muyun.md

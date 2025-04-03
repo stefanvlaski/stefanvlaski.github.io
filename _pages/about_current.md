@@ -1,3 +1,1 @@
-\
-# former members
-\
+## current members
