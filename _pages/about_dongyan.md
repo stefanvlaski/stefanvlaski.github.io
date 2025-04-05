@@ -1,6 +1,6 @@
 \
 **Dongyan Sui**\
-Visiting PhD Student (Since 2024)\
+Visiting PhD Student (Since 09/2024)\
 Home university: Fudan University\
 \
 Research topics: Filtering algorithms in online environments and decentralized inference problems in multi-agent networks, non-Bayesian social learning models\

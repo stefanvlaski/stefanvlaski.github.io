@@ -6,4 +6,4 @@ nav: true
 nav_order: 2
 cv_pdf: vlaski_cv.pdf
 ---
-A formal CV is available [here](/bio/vlaski_cv.pdf).
+Testing if this can be seen.

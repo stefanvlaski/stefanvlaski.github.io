@@ -14,32 +14,32 @@
   },
   "work": [
     {
-      "name": "Imperial College London",
-      "position": "Lecturer",
+      "position": "Imperial College London",
+      "name": "Lecturer",
       "url": "https://profiles.imperial.ac.uk/s.vlaski",
-      "startDate": "09/2021",
+      "startDate": "2021-09-01",
       "location": "London, UK"
     },
     {
-      "name": "Ecole Polytechnique Fédérale de Lausanne (EPFL) Adaptive Systems Laboratory",
-      "position": "Postdoctoral researcher",
+      "position": "Ecole Polytechnique Fédérale de Lausanne (EPFL) Adaptive Systems Laboratory",
+      "name": "Postdoctoral researcher",
       "url": "https://profiles.imperial.ac.uk/s.vlaski",
-      "startDate": "10/2019",
-      "endDate": "08/2021",
-      "location": "London, UK"
+      "startDate": "2019-10-1",
+      "endDate": "2021-08-31",
+      "location": "Lausanne, Switzerland"
     },
     {
-      "name": "Amazon Lab126",
-      "position": "Software Development Engineering Intern",
-      "startDate": "06/2017",
-      "endDate": "09/2017",
+      "position": "Amazon Lab126",
+      "name": "Software development engineering intern",
+      "startDate": "2017-06",
+      "endDate": "2017-09",
       "location": "Sunnyvale, CA"
     },
     {
-      "name": "Apple Inc.",
-      "position": "Engineering intern",
-      "startDate": "06/2016",
-      "endDate": "09/2016",
+      "position": "Apple Inc.",
+      "name": "Engineering intern",
+      "startDate": "2016-06",
+      "endDate": "2016-09",
       "location": "Cupertino, CA"
     }
   ],
@@ -48,34 +48,64 @@
       "organization": "Non-voting member",
       "position": "IEEE Signal Processing Society Board of Governors",
       "url": "https://signalprocessingsociety.org/our-story/board-governors",
-      "startDate": "01/2025",
-      "endDate": "12/2027"
+      "startDate": "2025-01",
+      "endDate": "2027-12"
     },
     {
       "organization": "Chair",
       "position": "IEEE Signal Processing Society Young Professionals Committee",
       "url": "https://signalprocessingsociety.org/community-involvement/young-professionals",
-      "startDate": "01/2025",
-      "endDate": "12/2027"
+      "startDate": "2025-01",
+      "endDate": "2027-12"
     }
     ,
     {
       "organization": "Member",
       "position": "IEEE Signal Processing Society Young Professionals Committee",
       "url": "https://signalprocessingsociety.org/community-involvement/young-professionals",
-      "startDate": "03/2023",
-      "endDate": "12/2025"
+      "startDate": "2023-03",
+      "endDate": "2024-12"
+    },
+    {
+      "organization": "Associate editor",
+      "position": "IEEE Signal Transactions on Signal and Information Processing over Networks",
+      "url": "",
+      "startDate": "2024-09"
+    },
+    {
+      "organization": "Associate editor",
+      "position": "Elsevier Signal Pocessing",
+      "url": "",
+      "startDate": "2024-01"
     }
   ],
   "education": [
     {
-      "institution": "University of California, Los Angeles",
+      "studyType": "University of California, Los Angeles",
       "location": "Los Angeles, CA",
       "url": "https://ee.ucla.edu",
-      "area": "",
-      "studyType": "PhD",
-      "startDate": "07/2014",
-      "endDate": "09/2019"
+      "area": "Distributed Stochastic Optimization in Non-Differentiable and Non-Convex Environments",
+      "institution": "Doctor of Philosophy",
+      "startDate": "2014-07",
+      "endDate": "2019-09"
+    },
+    {
+      "studyType": "University of California, Los Angeles",
+      "location": "Los Angeles, CA",
+      "url": "https://ee.ucla.edu",
+      "area": "Electrical Engineering",
+      "institution": "Master of Science",
+      "startDate": "2013-09",
+      "endDate": "2014-06"
+    },
+    {
+      "studyType": "Technische Universität Darmstadt",
+      "location": "Darmstadt, Germany",
+      "url": "",
+      "area": "Electrical Engineering and Information Technology",
+      "institution": "Bachelor of Science",
+      "startDate": "2010-10",
+      "endDate": "2013-07"
     }
   ],
   "awards": [
@@ -84,6 +114,18 @@
       "date": "2024",
       "awarder": "European Association for Signal Processing (Eurasip)",
       "url": "https://eurasip.org/best-phd-award/"
+    },
+    {
+      "title": "2nd Place in Best Student Paper Contest",
+      "date": "2019",
+      "awarder": "IEEE CAMSAP",
+      "url": ""
+    },
+    {
+      "title": "Best Student Paper in the SPTM Track",
+      "date": "2016",
+      "awarder": "IEEE International Conference on Acoustics, Speech and Signal Processing",
+      "url": ""
     }
   ]
 }

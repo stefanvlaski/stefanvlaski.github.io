@@ -1,6 +1,6 @@
 \
 **Muyun Li**\
-Pre-Doctoral Research Assistant (2024-2025)\
+Pre-Doctoral Research Assistant (11/2024-03/2025)\
 \
 Research topics: Combination policies for decentralized deep learning\
 \
