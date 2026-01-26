@@ -2,7 +2,7 @@
 layout: about
 title: home
 permalink: /
-subtitle: <a href=https://profiles.imperial.ac.uk/s.vlaski>Lecturer, Imperial College London</a>
+subtitle: <a href=https://profiles.imperial.ac.uk/s.vlaski>Associate Professor, Imperial College London</a>
 
 profile:
   align: right
@@ -22,7 +22,7 @@ announcements:
 selected_papers: true # includes a list of papers marked as "selected={true}"
 social: false  # includes social icons at the bottom of the page
 ---
-I am Lecturer (equivalent to Assistant Professor) at [Imperial College London](https://www.imperial.ac.uk/), where I am part of the [Communication and Signal Processing Group](https://www.imperial.ac.uk/electrical-engineering/research/comms-and-signal-processing/) in the [Department of Electrical and Electronic Engineering](https://www.imperial.ac.uk/electrical-engineering/).
+I am Associate Professor at [Imperial College London](https://www.imperial.ac.uk/), where I am part of the [Communication and Signal Processing Group](https://www.imperial.ac.uk/electrical-engineering/research/comms-and-signal-processing/) in the [Department of Electrical and Electronic Engineering](https://www.imperial.ac.uk/electrical-engineering/).
 
 My research interests focus around the intersection of machine learning (theory), optimization and network science. More details are available under the publications tab.
 

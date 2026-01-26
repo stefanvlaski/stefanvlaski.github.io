@@ -1,7 +1,7 @@
 {
   "basics": {
     "name": "Stefan Vlaski",
-    "label": "Lecturer",
+    "label": "Associate Professor",
     "image": "",
     "email": "s.vlaski@imperial.ac.uk",
     "url": "https://stefanvlaski.github.io",
@@ -15,9 +15,18 @@
   "work": [
     {
       "position": "Imperial College London",
-      "name": "Lecturer",
+      "name": "Associate Professor",
       "url": "https://profiles.imperial.ac.uk/s.vlaski",
       "startDate": "2021-09-01",
+      "endDate": "2025-08-31",
+      "location": "London, UK"
+    },
+    {
+      "position": "Imperial College London",
+      "name": "Lecturer/Assistant Professor",
+      "url": "https://profiles.imperial.ac.uk/s.vlaski",
+      "startDate": "2021-09-01",
+      "endDate": "2025-08-31",
       "location": "London, UK"
     },
     {
