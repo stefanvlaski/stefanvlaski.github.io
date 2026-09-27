@@ -172,6 +172,9 @@ kramdown:
 # Includes & excludes
 include: ["_pages", "_scripts"]
 exclude:
+  # al-folio template demo content, not part of this site
+  - _posts/
+  - _projects/
   - bin/
   - CONTRIBUTING.md
   - CUSTOMIZE.md
