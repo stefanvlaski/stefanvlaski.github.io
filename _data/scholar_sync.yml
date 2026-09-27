@@ -11,9 +11,6 @@ min_year: 2024
 # Scholar items that should never be proposed: their scholar_id (e.g. "u5HHmVD_uO8C")
 # or their exact title.
 ignore:
-  # arXiv version of "Mean aggregator is more robust than robust aggregators under label
-  # poisoning attacks on distributed heterogeneous data" (published in JMLR, vol. 26).
-  - 4OULZ7Gr8RgC
   # arXiv version (2601.02682, "Topology-Independent Robustness of the Weighted Mean ...") of the
   # IEEE TSIPN paper "Topology-Independent Learning Error of the Weighted Mean ..."; the
   # journal version (scholar_id dshw04ExmUIC) is kept.
