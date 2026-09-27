@@ -79,6 +79,7 @@ VENUE_ABBREVIATIONS = [
     ("sensor array and multichannel", "SAM"),
     ("data science and learning workshop", "DSLW"),
     ("global conference on signal and information processing", "GlobalSIP"),
+    ("international conference on communications", "ICC"),
 ]
 
 
@@ -301,14 +302,13 @@ def venue_abbreviation(venue):
     for needle, abbr in VENUE_ABBREVIATIONS:
         if needle in low:
             return abbr
-    m = re.search(r"\(([A-Z][A-Za-z\-]{1,12})\)\s*$", venue)
+    m = re.search(r"\(([A-Z][A-Za-z\-]{1,12})\)\s*$", venue) or re.match(r"([A-Z]{2,}[A-Za-z]*)\s+\d{4}\b", venue)
     return m.group(1) if m else ""
 
 
 def clean_conference(name):
-    # Scholar often writes "ICASSP 2025-2025 IEEE International Conference on ..."
-    name = re.sub(r"^[A-Za-z][\w'&\- ]*?\s+(\d{4})\s*-\s*(?=\1\b)", "", name.strip())
-    return name
+    # Scholar often writes "ICASSP 2025-2025 IEEE International ..." or "ICC 2026-IEEE International ..."
+    return re.sub(r"^[A-Za-z][\w'&\- ]*?\s+(\d{4})\s*-\s*(?:\1\s+)?", r"\1 ", name.strip())
 
 
 def bib_escape(value):
@@ -373,13 +373,17 @@ def build_entry(pub, detail, taken_keys):
 
     if year:
         fields["year"] = str(year)
-    for src, dst in (("volume", "volume"), ("issue", "number"), ("pages", "pages"), ("publisher", "publisher")):
-        if detail.get(src) and entry_type != "misc":
-            fields[dst] = detail[src]
+    note = None
+    if abbr != "preprint":
+        for src, dst in (("volume", "volume"), ("issue", "number"), ("pages", "pages"), ("publisher", "publisher")):
+            if detail.get(src) and entry_type != "misc":
+                fields[dst] = detail[src]
     if arx:
         fields["arxiv"] = arx
-    if link and "scholar.google" not in link and not (arx and "arxiv.org" in link):
+    if link and not re.search(r"scholar\.google|arxiv\.org|adsabs\.harvard\.edu", link):
         fields["html"] = link
+        if abbr == "preprint":
+            note = f"`{{key}}` is listed on Scholar as an arXiv preprint but links to {link}; it may be published there."
     if abbr:
         fields["abbr"] = abbr
     if pub.get("id"):
@@ -391,7 +395,7 @@ def build_entry(pub, detail, taken_keys):
         value = value if name in ("html",) else bib_escape(value)
         lines.append(f"  {name}={{{value}}},")
     lines.append("}")
-    return key, "\n".join(lines)
+    return key, "\n".join(lines), note.format(key=key) if note else None
 
 
 # --------------------------------------------------------------------------------------------
@@ -425,6 +429,14 @@ def plan_sync(pubs, bib_entries, config):
         if t:
             known[t] = e
     known_ids = {e["fields"].get("scholar_id") for e in bib_entries if e["fields"].get("scholar_id")}
+    known_arxiv = {}
+    for e in bib_entries:
+        a = arxiv_id(e["fields"].get("arxiv", "").replace("arxiv:", "arXiv:"), e["fields"].get("journal", ""))
+        if not a and re.fullmatch(r"\d{4}\.\d{4,5}", e["fields"].get("arxiv", "")):
+            a = e["fields"]["arxiv"]
+        if a:
+            known_arxiv[a] = e
+    seen_arxiv = {}
     ignore_ids = {x for x in config["ignore"]}
     ignore_titles = {normalize_title(x) for x in config["ignore"]}
 
@@ -449,6 +461,15 @@ def plan_sync(pubs, bib_entries, config):
                     f"*{pub['venue']}*. You may want to update it."
                 )
             continue
+        # Same arXiv id as an existing entry or an earlier new item: a renamed version of the same paper.
+        arx = arxiv_id(pub.get("venue", ""))
+        if arx and arx in known_arxiv:
+            counts["already_in_bib"] += 1
+            continue
+        if arx and arx in seen_arxiv:
+            counts["duplicate_on_scholar"] += 1
+            notes.append(f"Skipped *{pub['title']}*: same arXiv id ({arx}) as *{seen_arxiv[arx]}*.")
+            continue
         if config["min_year"] and (pub["year"] is None or pub["year"] < int(config["min_year"])):
             counts["too_old"] += 1
             continue
@@ -459,6 +480,8 @@ def plan_sync(pubs, bib_entries, config):
                 candidates[norm] = pub
             continue
         candidates[norm] = pub
+        if arx:
+            seen_arxiv[arx] = pub["title"]
     return list(candidates.values()), counts, notes
 
 
@@ -511,8 +534,10 @@ def main(argv=None):
             except ScholarBlocked as exc:
                 print(f"WARNING: {exc} Using the less complete profile-list data for the remaining entries.")
                 backend.publication_detail = lambda _id: {}  # stop hammering a blocked endpoint
-        key, block = build_entry(pub, detail, taken)
+        key, block, note = build_entry(pub, detail, taken)
         added.append((key, pub, block))
+        if note:
+            notes.append(note)
         print(f"  + {key}: {pub['title']}")
 
     if added and not args.dry_run:
@@ -524,7 +549,7 @@ def main(argv=None):
         for key, pub, _ in added:
             lines.append(f"- `{key}` ({pub['year'] or 'n.d.'}): {pub['title']} — *{pub['venue'] or 'no venue'}*")
         if notes:
-            lines += ["", "### Possibly published since", ""] + [f"- {n}" for n in notes]
+            lines += ["", "### Notes", ""] + [f"- {n}" for n in notes]
         lines += [
             "",
             "Please check author names, venue names and badges (`abbr`) before merging. "
