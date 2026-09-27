@@ -20,8 +20,9 @@ announcements:
   limit: # leave blank to include all the news in the `_news` folder
 
 selected_papers: true # includes a list of papers marked as "selected={true}"
-social: false  # includes social icons at the bottom of the page
+social: false # includes social icons at the bottom of the page
 ---
+
 I am Associate Professor at [Imperial College London](https://www.imperial.ac.uk/), where I am part of the [Communication and Signal Processing Group](https://www.imperial.ac.uk/electrical-engineering/research/comms-and-signal-processing/) in the [Department of Electrical and Electronic Engineering](https://www.imperial.ac.uk/electrical-engineering/).
 
 My research interests focus around the intersection of machine learning (theory), optimization and network science. More details are available under the publications tab.
