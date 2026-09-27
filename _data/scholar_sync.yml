@@ -10,4 +10,7 @@ min_year: 2024
 
 # Scholar items that should never be proposed: their scholar_id (e.g. "u5HHmVD_uO8C")
 # or their exact title.
-ignore: []
+ignore:
+  # arXiv version of "Mean aggregator is more robust than robust aggregators under label
+  # poisoning attacks on distributed heterogeneous data" (published in JMLR, vol. 26).
+  - 4OULZ7Gr8RgC
