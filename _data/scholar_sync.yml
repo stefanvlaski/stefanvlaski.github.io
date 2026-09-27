@@ -1,0 +1,13 @@
+# Settings for bin/scholar_sync.py, which adds new Google Scholar publications to
+# _bibliography/papers.bib (run weekly by .github/workflows/scholar-sync.yml).
+
+# Google Scholar profile id (the "user=" part of the profile URL).
+scholar_user_id: mghzVekAAAAJ
+
+# Only propose publications from this year onwards. Older Scholar items that are not in
+# papers.bib are assumed to have been left out on purpose.
+min_year: 2024
+
+# Scholar items that should never be proposed: their scholar_id (e.g. "u5HHmVD_uO8C")
+# or their exact title.
+ignore: []
