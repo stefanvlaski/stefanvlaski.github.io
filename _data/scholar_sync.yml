@@ -10,4 +10,8 @@ min_year: 2024
 
 # Scholar items that should never be proposed: their scholar_id (e.g. "u5HHmVD_uO8C")
 # or their exact title.
-ignore: []
+ignore:
+  # arXiv version (2601.02682, "Topology-Independent Robustness of the Weighted Mean ...") of the
+  # IEEE TSIPN paper "Topology-Independent Learning Error of the Weighted Mean ..."; the
+  # journal version (scholar_id dshw04ExmUIC) is kept.
+  - P5F9QuxV20EC
