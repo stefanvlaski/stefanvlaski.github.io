@@ -5,5 +5,5 @@ Home University: Technische Universität Darmstadt\
 \
 Research topics: Robust signal processing, distributed learning, robust clustering\
 \
-[[LinkedIn]](www.linkedin.com/in/christian-schroth) [[Google Scholar]](https://scholar.google.de/citations?user=xcWSsakAAAAJ)\
+[[LinkedIn]](https://www.linkedin.com/in/christian-schroth) [[Google Scholar]](https://scholar.google.de/citations?user=xcWSsakAAAAJ)\
 [[Sample Paper]]()

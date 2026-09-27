@@ -48,5 +48,8 @@ jobs:
         uses: lycheeverse/lychee-action@v2.1.0
         with:
           fail: true
-          # removed md files that include liquid tags
-          args: --user-agent 'curl/7.54' --exclude-path README.md --exclude-path _pages/404.md --exclude-path _pages/blog.md --exclude-path _posts/2018-12-22-distill.md --exclude-path _posts/2023-04-24-videos.md --exclude-path _books/the_godfather.md --verbose --no-progress './**/*.md' './**/*.html'
+          # removed md files that include liquid tags, the template's own docs, and the
+          # template demo posts/projects (excluded from the site build in _config.yml).
+          # 403/418/429 are accepted because sites like Google Scholar, IEEE Xplore and
+          # imperial.ac.uk block automated checkers even though the links work.
+          args: --user-agent 'curl/7.54' --accept '100..=103,200..=299,403,418,429' --exclude-path README.md --exclude-path CUSTOMIZE.md --exclude-path FAQ.md --exclude-path INSTALL.md --exclude-path CONTRIBUTING.md --exclude-path _posts --exclude-path _projects --exclude-path _pages/404.md --exclude-path _pages/blog.md --exclude-path _posts/2018-12-22-distill.md --exclude-path _posts/2023-04-24-videos.md --exclude-path _books/the_godfather.md --verbose --no-progress './**/*.md' './**/*.html'
