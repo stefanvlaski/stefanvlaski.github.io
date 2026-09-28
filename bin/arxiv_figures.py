@@ -13,16 +13,29 @@ PNG, and writes per paper:
     <out>/<key>/index.json   figure number, caption, how often it is referenced, colourfulness
     <out>/<key>/sheet.jpg    all candidates on one numbered sheet, for choosing by eye
 
-Figures drawn in LaTeX (TikZ/pgfplots) have no image file; when a paper yields no figures from its
-source, the figures are cropped from the arXiv PDF instead, using the region above each caption.
-Picking the preview is left to a human: copy the chosen NN.png to
-assets/img/publication_preview/<key>.png and set preview={<key>.png}.
+Figures drawn in LaTeX (TikZ/pgfplots) have no image file; they are cropped from the arXiv PDF
+instead, using the region above each caption.
+
+With --auto (used by the weekly sync), one figure per paper is chosen and installed as
+assets/img/publication_preview/<key>.png, and preview={<key>.png} is added to papers.bib:
+
+* if ANTHROPIC_API_KEY is set, Claude looks at the candidate sheet and picks the figure that best
+  balances importance with being colourful and legible as a small thumbnail (and says whether it
+  needs rotating);
+* otherwise a scoring rule picks it (how often the paper references the figure, how much of the
+  image is filled, a thumbnail-friendly aspect ratio, earlier figures preferred). The rule was
+  tuned on hand-picked previews and agrees with them on about 60% of papers.
+
+Either way the choice is listed in the sync pull request; to change it, replace the PNG.
 """
 
 import argparse
+import base64
 import gzip
 import io
 import json
+import math
+import os
 import re
 import subprocess
 import sys
@@ -37,9 +50,11 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from arxiv_links import bib_entries_with_spans  # noqa: E402
+from arxiv_links import add_field, bib_entries_with_spans  # noqa: E402
 from scholar_sync import BIB_PATH  # noqa: E402
 
+PREVIEW_DIR = BIB_PATH.parent.parent / "assets" / "img" / "publication_preview"
+CLAUDE_MODEL = "claude-opus-5"
 UA = {"User-Agent": "stefanvlaski.github.io publication previews (arxiv_figures.py)"}
 EXTS = ["", ".pdf", ".png", ".jpg", ".jpeg", ".eps", ".PDF", ".PNG", ".JPG"]
 MAX_W = 1000  # candidate width in pixels
@@ -219,6 +234,12 @@ def colourfulness(im):
     return round(float(np.hypot(rg.std(), yb.std()) + 0.3 * np.hypot(rg.mean(), yb.mean())), 1)
 
 
+def ink(im):
+    """Fraction of the image that is not (near-)white: filled diagrams score high, thin line plots low."""
+    a = np.asarray(im.convert("RGB").resize((200, max(1, int(200 * im.height / im.width)))))
+    return round(float((a < 235).any(axis=2).mean()), 3)
+
+
 # ---------------------------------------------------------------------------------------------
 # PDF fallback: crop the region above each caption
 # ---------------------------------------------------------------------------------------------
@@ -330,17 +351,161 @@ def process(key, arxiv_id, title, out_dir):
         c["id"] = f"{i:02d}"
         c["image"] = finalize(c["image"])
         c["colour"] = colourfulness(c["image"])
+        c["ink"] = ink(c["image"])
         c["image"].save(out / f"{c['id']}.png", optimize=True)
-        index.append({k: c[k] for k in ("id", "figure", "caption", "refs", "colour")} | {"size": c["image"].size})
+        index.append({k: c[k] for k in ("id", "figure", "caption", "refs", "colour", "ink")} | {"size": c["image"].size})
     (out / "index.json").write_text(json.dumps({"key": key, "arxiv": arxiv_id, "title": title, "source": source, "figures": index}, indent=1))
     if cands:
         sheet(cands, f"{key}  arXiv:{arxiv_id}  {title}", out / "sheet.jpg")
     return len(cands), source
 
 
+# ---------------------------------------------------------------------------------------------
+# Choosing a preview
+# ---------------------------------------------------------------------------------------------
+
+
+def heuristic_choice(figures):
+    """Scoring rule tuned on hand-picked previews. Returns (id, rotation, reason)."""
+    max_refs = max(f["refs"] for f in figures) or 1
+    n = len(figures)
+
+    def score(f):
+        w, h = f["size"]
+        return (
+            0.5 * f["refs"] / max_refs
+            - abs(math.log((w / h) / 1.4))  # thumbnails are about 1.4:1
+            - 0.5 * (f["figure"] - 1) / max(n - 1, 1)
+            + 2 * min(f.get("ink", 0), 0.5)
+        )
+
+    best = max(figures, key=score)
+    return best["id"], 0, "scoring rule"
+
+
+PICK_PROMPT = """These are the figures of the paper "{title}", numbered on the sheet (#01, #02, ...). \
+Each tile is labelled with its figure number and how often the paper refers to it; captions:
+
+{captions}
+
+Pick the one figure to show as the paper's preview on a publication list, where it is displayed \
+about 200 pixels wide. Balance being one of the paper's more important figures (a key result or \
+the central idea) against being colourful and easy to read at that small size; prefer a figure \
+that is not mostly text or tiny sub-panels. If the figure you pick is shown sideways or upside \
+down, give the clockwise rotation that would make it upright, else 0."""
+
+
+def claude_choice(title, figures, sheet_path, api_key):
+    """Ask Claude to pick from the candidate sheet. Returns (id, rotation, reason) or None."""
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=api_key)
+    ids = [f["id"] for f in figures]
+    captions = "\n".join(f"#{f['id']} (Fig. {f['figure']}, referenced {f['refs']}x): {f['caption'][:300]}" for f in figures)
+    schema = {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string", "enum": ids},
+            "rotate_clockwise": {"type": "integer", "enum": [0, 90, 180, 270]},
+            "reason": {"type": "string"},
+        },
+        "required": ["id", "rotate_clockwise", "reason"],
+        "additionalProperties": False,
+    }
+    response = client.beta.messages.create(
+        model=CLAUDE_MODEL,
+        max_tokens=16000,
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+        thinking={"type": "adaptive"},
+        output_config={"format": {"type": "json_schema", "schema": schema}},
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/jpeg",
+                            "data": base64.standard_b64encode(sheet_path.read_bytes()).decode(),
+                        },
+                    },
+                    {"type": "text", "text": PICK_PROMPT.format(title=title, captions=captions)},
+                ],
+            }
+        ],
+    )
+    if response.stop_reason == "refusal":
+        return None
+    text = next(b.text for b in response.content if b.type == "text")
+    data = json.loads(text)
+    return data["id"], data["rotate_clockwise"], "Claude: " + data["reason"]
+
+
+def auto(todo, report_path):
+    """Extract, choose and install a preview for each (key, arxiv_id, title)."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    print(f"Choosing previews with {'Claude (' + CLAUDE_MODEL + ')' if api_key else 'the scoring rule'}.")
+    text = BIB_PATH.read_text(encoding="utf-8")
+    added, failed = {}, []
+    with tempfile.TemporaryDirectory() as t:
+        out_dir = Path(t)
+        for key, arxiv_id, title in todo:
+            try:
+                count, _ = process(key, arxiv_id, title, out_dir)
+                if not count:
+                    failed.append((key, "no figures found"))
+                    continue
+                index = json.loads((out_dir / key / "index.json").read_text())
+                figures = index["figures"]
+                choice = None
+                if api_key:
+                    try:
+                        choice = claude_choice(title, figures, out_dir / key / "sheet.jpg", api_key)
+                    except Exception as exc:  # fall back to the scoring rule rather than skip the paper
+                        print(f"  {key}: Claude choice failed ({exc}); using the scoring rule")
+                fig_id, rotate, reason = choice or heuristic_choice(figures)
+                im = Image.open(out_dir / key / f"{fig_id}.png")
+                if rotate:
+                    im = im.rotate(-rotate, expand=True)  # PIL rotates counter-clockwise
+                PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
+                im.save(PREVIEW_DIR / f"{key}.png", optimize=True)
+                fig = next(f for f in figures if f["id"] == fig_id)
+                added[key] = (fig, rotate, reason)
+                print(f"  {key}: Fig. {fig['figure']} ({reason})", flush=True)
+            except Exception as exc:
+                failed.append((key, str(exc)))
+            time.sleep(3)  # arXiv asks for at most one request every 3 seconds
+
+    edits = {}
+    for start, end, key, fields in bib_entries_with_spans(text):
+        if key in added and not fields.get("preview"):
+            edits[start] = (end, add_field(text[start:end], "preview", f"{key}.png"))
+    for start in sorted(edits, reverse=True):
+        end, new = edits[start]
+        text = text[:start] + new + text[end:]
+    if edits:
+        BIB_PATH.write_text(text, encoding="utf-8")
+
+    if report_path and (added or failed):
+        lines = ["", "### Preview figures", ""]
+        for key, (fig, rotate, reason) in added.items():
+            turn = f", rotated {rotate}°" if rotate else ""
+            lines.append(f"- `{key}`: Fig. {fig['figure']}{turn} ({reason})")
+        lines += [f"- `{key}`: no preview ({why})" for key, why in failed]
+        lines += ["", "To use a different figure, replace `assets/img/publication_preview/<key>.png`."]
+        with open(report_path, "a", encoding="utf-8") as fh:
+            fh.write("\n".join(lines) + "\n")
+    print(f"Added {len(added)} preview(s); {len(failed)} without.")
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", default="_figure_candidates")
+    parser.add_argument("--auto", action="store_true", help="choose and install previews (weekly sync)")
+    parser.add_argument("--report", help="with --auto: append a markdown summary to this file")
     parser.add_argument("keys", nargs="*", help="only these entries (default: all with arxiv and no preview)")
     args = parser.parse_args(argv)
     out_dir = Path(args.out)
@@ -350,6 +515,8 @@ def main(argv=None):
         for _, _, k, f in entries
         if f.get("arxiv") and (k in args.keys if args.keys else not f.get("preview"))
     ]
+    if args.auto:
+        return auto(todo, args.report)
     summary = {}
     for n, (key, arxiv_id, title) in enumerate(todo, start=1):
         try:
