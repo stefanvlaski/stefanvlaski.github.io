@@ -2,7 +2,8 @@ name: Sync publications from Google Scholar
 
 # Weekly, checks the Google Scholar profile for publications that are not yet in
 # _bibliography/papers.bib (bin/scholar_sync.py), links publications to their arXiv
-# versions (bin/arxiv_links.py), and opens a pull request with the changes.
+# versions (bin/arxiv_links.py), adds preview figures (bin/arxiv_figures.py), and opens a pull
+# request with the changes.
 # Merging the pull request triggers the normal site deploy.
 
 on:
@@ -33,7 +34,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 pyyaml
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ghostscript fonts-dejavu-core > /dev/null
+          pip install requests beautifulsoup4 pyyaml pymupdf pillow numpy anthropic
 
       - name: Fetch new publications
         env:
@@ -51,6 +54,15 @@ jobs:
         run: |
           python bin/arxiv_links.py --report "$RUNNER_TEMP/scholar_report.md"
 
+      - name: Add preview figures
+        # Picks a figure from the arXiv version of each publication that has no preview yet.
+        # With the optional ANTHROPIC_API_KEY secret Claude picks it; otherwise a scoring rule.
+        # Not fatal: the rest of the update still goes out if this fails.
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python bin/arxiv_figures.py --auto --report "$RUNNER_TEMP/scholar_report.md"
+
       - name: Summary
         run: cat "$RUNNER_TEMP/scholar_report.md" >> "$GITHUB_STEP_SUMMARY"
 
@@ -59,7 +71,9 @@ jobs:
         with:
           branch: scholar-sync
           delete-branch: true
-          add-paths: _bibliography/papers.bib
+          add-paths: |
+            _bibliography/papers.bib
+            assets/img/publication_preview
           commit-message: "Update publications from Google Scholar and arXiv"
           title: "Publication updates from Google Scholar and arXiv"
           body-path: ${{ runner.temp }}/scholar_report.md
