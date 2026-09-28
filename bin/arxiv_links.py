@@ -12,8 +12,11 @@ Fetches every arXiv paper with the configured author surname in a single paginat
 * by DOI, when the arXiv record lists the published version's DOI, or
 * by title, when the normalized titles are near-identical.
 
-Close title matches below the threshold are only reported, never added, so a human can check
-them. Existing `arxiv` values written as "arxiv:XXXX.XXXXX" are normalized to the bare id,
+Each arXiv id is given to at most one entry (a DOI match or the closest title wins), since a
+conference paper and its extended journal version often have similar titles but only one of
+them is the arXiv paper. Close title matches, and ids already taken, are only reported, never
+added, so a human can check them. Existing links whose arXiv title does not match the entry are
+reported too. Existing `arxiv` values written as "arxiv:XXXX.XXXXX" are normalized to the bare id,
 which is what the publication template appends to https://arxiv.org/abs/.
 """
 
@@ -126,43 +129,79 @@ def main(argv=None):
     by_doi = {p["doi"]: p for p in papers if p["doi"]}
     print(f"arXiv lists {len(papers)} papers by {AUTHOR_SURNAME}.")
 
-    added, review, missing, normalized = [], [], [], []
-    edits = []  # (start, end, new_text), applied back to front
-    for start, end, key, fields in bib_entries_with_spans(text):
-        entry = text[start:end]
+    by_id = {p["id"]: p for p in papers}
+    entries = bib_entries_with_spans(text)
+
+    # Pass 1: existing links. Normalize "arxiv:ID" values and check that the titles agree.
+    normalized, suspicious, taken = [], [], {}
+    edits = {}  # start -> (end, new_text)
+    for start, end, key, fields in entries:
         current = fields.get("arxiv", "")
-        if current:
-            bare = re.sub(r"^arxiv:\s*", "", current, flags=re.I)
-            if bare != current:
-                entry = re.sub(r"(arxiv\s*=\s*\{)arxiv:\s*", r"\1", entry, count=1, flags=re.I)
-                edits.append((start, end, entry))
-                normalized.append((key, bare))
+        if not current:
             continue
-        if fields.get("abbr", "").lower() in SKIP_ABBR or not fields.get("title"):
-            continue
-
+        bare = re.sub(r"^arxiv:\s*", "", current, flags=re.I)
+        bare_id = re.sub(r"v\d+$", "", bare)
+        taken[bare_id] = key
+        if bare != current:
+            new = re.sub(r"(arxiv\s*=\s*\{)arxiv:\s*", r"\1", text[start:end], count=1, flags=re.I)
+            edits[start] = (end, new)
+            normalized.append((key, bare))
+        p = by_id.get(bare_id)
         doi = fields.get("doi", "").strip().lower()
-        match, how = None, None
-        if doi and doi in by_doi:
-            match, how = by_doi[doi], "DOI"
-        else:
-            cand, ratio = best_title_match(fields["title"], papers)
-            if cand and ratio >= TITLE_MATCH_RATIO:
-                match, how = cand, f"title ({ratio:.2f})"
-            elif cand and ratio >= REVIEW_RATIO:
-                review.append((key, fields["title"], cand, ratio))
-        if match:
-            edits.append((start, end, add_field(entry, "arxiv", match["id"])))
-            added.append((key, fields["title"], match, how))
-        elif not any(k == key for k, *_ in review):
-            missing.append((key, fields["title"]))
+        if p and not (doi and doi == p["doi"]):
+            ratio = difflib.SequenceMatcher(None, normalize_title(fields.get("title", "")), p["norm"]).ratio()
+            if ratio < REVIEW_RATIO:
+                suspicious.append((key, fields.get("title", ""), p, ratio))
 
-    for start, end, new in sorted(edits, reverse=True):
+    # Pass 2: candidate matches for entries without a link.
+    candidates = []  # (score, key, arxiv paper, how)
+    review, missing, todo = [], [], []
+    for start, end, key, fields in entries:
+        if fields.get("arxiv") or fields.get("abbr", "").lower() in SKIP_ABBR or not fields.get("title"):
+            continue
+        todo.append((start, end, key, fields))
+        doi = fields.get("doi", "").strip().lower()
+        if doi and doi in by_doi:
+            candidates.append((2.0, key, by_doi[doi], "DOI"))
+            continue
+        cand, ratio = best_title_match(fields["title"], papers)
+        if cand and ratio >= TITLE_MATCH_RATIO:
+            candidates.append((ratio, key, cand, f"title ({ratio:.2f})"))
+        elif cand and ratio >= REVIEW_RATIO:
+            review.append((key, fields["title"], cand, f"similar title ({ratio:.2f})"))
+
+    # Pass 3: each arXiv id goes to at most one entry; the strongest match wins.
+    titles = {k: f["title"] for s, e, k, f in todo}
+    matched = {}  # key -> (paper, how)
+    for score, key, p, how in sorted(candidates, key=lambda c: -c[0]):
+        owner = taken.get(p["id"])
+        if owner:
+            review.append((key, titles[key], p, f"{how}, but this id is already used by `{owner}`"))
+            continue
+        taken[p["id"]] = key
+        matched[key] = (p, how)
+
+    added = []
+    reviewed = {k for k, *_ in review}
+    for start, end, key, fields in todo:
+        if key in matched:
+            p, how = matched[key]
+            edits[start] = (end, add_field(text[start:end], "arxiv", p["id"]))
+            added.append((key, fields["title"], p, how))
+        elif key not in reviewed:
+            missing.append((key, fields["title"]))
+    unused = [p for p in papers if p["id"] not in taken]
+
+    for start in sorted(edits, reverse=True):
+        end, new = edits[start]
         text = text[:start] + new + text[end:]
     if edits and not args.dry_run:
         BIB_PATH.write_text(text, encoding="utf-8")
 
-    print(f"Added {len(added)}, normalized {len(normalized)}, to review {len(review)}, not found {len(missing)}.")
+    print(
+        f"Added {len(added)}, normalized {len(normalized)}, to review {len(review)}, "
+        f"suspicious {len(suspicious)}, not found {len(missing)}, unused arXiv papers {len(unused)}."
+    )
     lines = [f"### arXiv links", "", f"Added arXiv links to **{len(added)}** publication(s)."]
     if added:
         lines += [""] + [
@@ -171,15 +210,24 @@ def main(argv=None):
     if normalized:
         lines += ["", f"Normalized {len(normalized)} existing link(s) written as `arxiv:ID` to the bare id: "
                   + ", ".join(f"`{k}`" for k, _ in normalized) + "."]
-    if review:
-        lines += ["", "**Possible matches, not added** (titles differ; add `arxiv={id}` by hand if correct):", ""]
+    if suspicious:
+        lines += ["", "**Existing links to check** (the arXiv paper's title does not match the entry):", ""]
         lines += [
-            f"- `{k}`: {t}  \n  ↔ [arXiv:{p['id']}](https://arxiv.org/abs/{p['id']}) *{p['title']}* (similarity {r:.2f})"
-            for k, t, p, r in review
+            f"- `{k}`: {t}  \n  links to [arXiv:{p['id']}](https://arxiv.org/abs/{p['id']}) *{p['title']}* (similarity {r:.2f})"
+            for k, t, p, r in suspicious
+        ]
+    if review:
+        lines += ["", "**Possible matches, not added** (add `arxiv={id}` by hand if correct):", ""]
+        lines += [
+            f"- `{k}`: {t}  \n  ↔ [arXiv:{p['id']}](https://arxiv.org/abs/{p['id']}) *{p['title']}* ({why})"
+            for k, t, p, why in review
         ]
     if missing:
         lines += ["", f"<details><summary>No arXiv version found for {len(missing)} publication(s)</summary>", ""]
         lines += [f"- `{k}`: {t}" for k, t in missing] + ["", "</details>"]
+    if unused:
+        lines += ["", f"<details><summary>{len(unused)} arXiv paper(s) not linked to any publication</summary>", ""]
+        lines += [f"- [arXiv:{p['id']}](https://arxiv.org/abs/{p['id']}) {p['title']}" for p in unused] + ["", "</details>"]
     report = "\n".join(lines) + "\n"
     print(report)
     if args.report:
