@@ -1,7 +1,8 @@
 name: Sync publications from Google Scholar
 
 # Weekly, checks the Google Scholar profile for publications that are not yet in
-# _bibliography/papers.bib and opens a pull request adding them (see bin/scholar_sync.py).
+# _bibliography/papers.bib (bin/scholar_sync.py), links publications to their arXiv
+# versions (bin/arxiv_links.py), and opens a pull request with the changes.
 # Merging the pull request triggers the normal site deploy.
 
 on:
@@ -42,7 +43,16 @@ jobs:
         run: |
           python bin/scholar_sync.py --report "$RUNNER_TEMP/scholar_report.md" \
             ${{ inputs.min_year && format('--min-year {0}', inputs.min_year) || '' }}
-          cat "$RUNNER_TEMP/scholar_report.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Add arXiv links
+        # Links publications to their arXiv versions, including papers posted to arXiv after
+        # they were first added. Not fatal: the Scholar results still go out if arXiv is down.
+        continue-on-error: true
+        run: |
+          python bin/arxiv_links.py --report "$RUNNER_TEMP/scholar_report.md"
+
+      - name: Summary
+        run: cat "$RUNNER_TEMP/scholar_report.md" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Open pull request
         uses: peter-evans/create-pull-request@v7
@@ -50,6 +60,6 @@ jobs:
           branch: scholar-sync
           delete-branch: true
           add-paths: _bibliography/papers.bib
-          commit-message: "Add new publications from Google Scholar"
-          title: "New publications from Google Scholar"
+          commit-message: "Update publications from Google Scholar and arXiv"
+          title: "Publication updates from Google Scholar and arXiv"
           body-path: ${{ runner.temp }}/scholar_report.md
