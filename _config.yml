@@ -176,6 +176,7 @@ exclude:
   - _posts/
   - _projects/
   - bin/
+  - CLAUDE.md
   - CONTRIBUTING.md
   - CUSTOMIZE.md
   - Dockerfile
